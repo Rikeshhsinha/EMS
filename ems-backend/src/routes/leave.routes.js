@@ -1,0 +1,12 @@
+import { Router } from "express";
+import { authenticate } from "../middleware/auth.middleware.js";
+import { allowRoles } from "../middleware/role.middleware.js";
+import { applyLeave, myLeaves, listLeaves, decideLeave, cancelLeave } from "../controllers/leave.controller.js";
+const router = Router();
+router.use(authenticate);
+router.post("/", applyLeave);
+router.get("/me", myLeaves);
+router.get("/", allowRoles("admin", "hr"), listLeaves);
+router.patch("/:id/decision", allowRoles("admin", "hr"), decideLeave);
+router.patch("/:id/cancel", cancelLeave);
+export default router;

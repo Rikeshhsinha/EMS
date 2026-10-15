@@ -1,0 +1,11 @@
+import { Router } from "express";
+import { authenticate } from "../middleware/auth.middleware.js";
+import { allowRoles } from "../middleware/role.middleware.js";
+import { listHolidays, createHoliday, updateHoliday, deleteHoliday } from "../controllers/holiday.controller.js";
+const router = Router();
+router.use(authenticate);
+router.get("/", listHolidays);
+router.post("/", allowRoles("admin", "hr"), createHoliday);
+router.patch("/:id", allowRoles("admin", "hr"), updateHoliday);
+router.delete("/:id", allowRoles("admin"), deleteHoliday);
+export default router;

@@ -1,0 +1,12 @@
+import { Router } from "express";
+import { authenticate } from "../middleware/auth.middleware.js";
+import { allowRoles } from "../middleware/role.middleware.js";
+import { checkIn, checkOut, myAttendance, listAttendance, correctAttendance } from "../controllers/attendance.controller.js";
+const router = Router();
+router.use(authenticate);
+router.post("/check-in", checkIn);
+router.patch("/check-out", checkOut);
+router.get("/me", myAttendance);
+router.get("/", allowRoles("admin", "hr"), listAttendance);
+router.patch("/:id", allowRoles("admin", "hr"), correctAttendance);
+export default router;

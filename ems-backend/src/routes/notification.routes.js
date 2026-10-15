@@ -1,0 +1,11 @@
+import { Router } from "express";
+import { authenticate } from "../middleware/auth.middleware.js";
+import { allowRoles } from "../middleware/role.middleware.js";
+import { listNotifications, markRead, markAllRead, createNotification } from "../controllers/notification.controller.js";
+const router = Router();
+router.use(authenticate);
+router.get("/", listNotifications);
+router.patch("/read-all", markAllRead);
+router.patch("/:id/read", markRead);
+router.post("/", allowRoles("admin", "hr"), createNotification);
+export default router;
