@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Search, RefreshCw, UserRound, Pencil, X } from "lucide-react";
+import { Plus, Search, RefreshCw, UserRound, ShieldCheck } from "lucide-react";
 import api, { endpoint } from "../services/api";
 import Loading from "../components/Loading";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
+import { useAuth } from "../context/AuthContext";
 
 const emptyForm = {
   firstName: "",
@@ -14,6 +15,7 @@ const emptyForm = {
   jobTitle: "",
   joiningDate: "",
   department: "",
+  role: "employee",
 };
 function extractRows(payload) {
   const value = payload?.data ?? payload?.employees ?? payload;
@@ -24,6 +26,8 @@ function extractRows(payload) {
 }
 
 export default function Employees() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +57,7 @@ export default function Employees() {
     load();
   }, [load]);
   const filtered = employees.filter((e) =>
-    `${e.firstName} ${e.lastName} ${e.email} ${e.employeeCode} ${e.jobTitle} ${e.department?.name}`
+    `${e.firstName} ${e.lastName} ${e.email || e.user?.email} ${e.employeeCode} ${e.jobTitle} ${e.department?.name} ${e.user?.role}`
       .toLowerCase()
       .includes(search.toLowerCase()),
   );
@@ -67,6 +71,7 @@ export default function Employees() {
       const body = { ...form };
       if (!body.department) delete body.department;
       if (!body.password) delete body.password;
+      if (!isAdmin) delete body.role;
       await api.post(endpoint.employees, body);
       setModal(false);
       setForm(emptyForm);
@@ -76,6 +81,26 @@ export default function Employees() {
       setError(err.userMessage || "Could not create employee.");
     } finally {
       setSaving(false);
+    }
+  };
+  const changeRole = async (employee) => {
+    const currentRole = employee.user?.role || "employee";
+    const nextRole = currentRole === "hr" ? "employee" : "hr";
+    const confirmed = window.confirm(
+      `Change ${employee.firstName} ${employee.lastName}'s role from ${currentRole} to ${nextRole}?`,
+    );
+    if (!confirmed) return;
+    setError("");
+    setNotice("");
+    try {
+      const { data } = await api.patch(
+        `${endpoint.employees}/${employee._id}/role`,
+        { role: nextRole },
+      );
+      setNotice(data.message || `Role updated to ${nextRole}.`);
+      await load();
+    } catch (err) {
+      setError(err.userMessage || "Could not update employee role.");
     }
   };
   const fieldClass =
@@ -145,6 +170,8 @@ export default function Employees() {
                   <th className="px-4 py-3.5 font-semibold">Department</th>
                   <th className="px-4 py-3.5 font-semibold">Job title</th>
                   <th className="px-4 py-3.5 font-semibold">Status</th>
+                  <th className="px-4 py-3.5 font-semibold">Role</th>
+                  {isAdmin && <th className="px-4 py-3.5 font-semibold">Actions</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -181,6 +208,24 @@ export default function Employees() {
                         {e.status || "unknown"}
                       </span>
                     </td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${e.user?.role === "hr" ? "bg-violet-50 text-violet-700" : e.user?.role === "admin" ? "bg-amber-50 text-amber-700" : "bg-blue-50 text-blue-700"}`}>
+                        {e.user?.role || "employee"}
+                      </span>
+                    </td>
+                    {isAdmin && (
+                      <td className="px-4 py-4">
+                        <button
+                          type="button"
+                          onClick={() => changeRole(e)}
+                          disabled={!e.user?._id || e.user?.role === "admin"}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <ShieldCheck size={14} />
+                          {e.user?.role === "hr" ? "Make employee" : "Make HR"}
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -210,8 +255,8 @@ export default function Employees() {
                 ["email", "Email address", true],
                 ["password", "Temporary password", true],
                 ["employeeCode", "Employee code", true],
-                ["jobTitle", "Job title", false],
-                ["joiningDate", "Joining date", false],
+                ["jobTitle", "Job title", true],
+                ["joiningDate", "Joining date", true],
               ].map(([key, label, required]) => (
                 <label
                   key={key}
@@ -245,6 +290,16 @@ export default function Employees() {
                   )}
                 </label>
               ))}
+              {isAdmin && (
+                <label className="block text-sm font-medium text-slate-700">
+                  Account role
+                  <select className={fieldClass} value={form.role} onChange={(e) => change("role", e.target.value)}>
+                    <option value="employee">Employee</option>
+                    <option value="hr">HR</option>
+                  </select>
+                  <span className="mt-1 block text-xs font-normal text-slate-500">HR accounts can manage people operations. Admin access cannot be assigned here.</span>
+                </label>
+              )}
               <label className="block text-sm font-medium text-slate-700">
                 Department (optional)
                 <select
