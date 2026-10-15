@@ -39,10 +39,7 @@ export default function App() {
                 <Route path="employees" element={<Employees />} />
                 <Route path="departments" element={<Departments />} />
               </Route>
-              <Route
-                path="attendance"
-                element={<ModulePage module="attendance" />}
-              />
+              <Route path="attendance" element={<Attendance />} />
               <Route path="leaves" element={<Leaves />} />
               <Route
                 path="holidays"
