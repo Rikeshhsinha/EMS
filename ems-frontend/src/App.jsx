@@ -59,7 +59,7 @@ export default function App() {
                 element={<ModulePage module="holidays" />}
               />
               <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-                <Route path="reports" element={<ModulePage module="reports" />}}
+                <Route path="reports" element={<ModulePage module="reports" />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Route>
