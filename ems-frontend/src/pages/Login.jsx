@@ -5,12 +5,13 @@ import Logo from "../components/Logo";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
-  const { user, login, loading } = useAuth();
+  const { user, login, loading, authReady } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("admin@example.com");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  if (!authReady) return <div className="grid min-h-screen place-items-center bg-slate-50"><p className="text-sm font-medium text-slate-600">Checking your session...</p></div>;
   if (user) return <Navigate to="/" replace />;
 
   const submit = async (event) => {
