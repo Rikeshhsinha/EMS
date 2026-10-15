@@ -15,6 +15,7 @@ function readSavedUser() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readSavedUser);
   const [loading, setLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -30,6 +31,9 @@ export function AuthProvider({ children }) {
         if (!active) return;
         setUser(null);
         sessionStorage.removeItem(USER_KEY);
+      })
+      .finally(() => {
+        if (active) setAuthReady(true);
       });
     return () => { active = false; };
   }, []);
@@ -57,15 +61,15 @@ export function AuthProvider({ children }) {
     try {
       await api.post(endpoint.logout);
     } catch {
-      /* The current backend may not expose a logout route. */
+      /* Clear local session state even if the logout endpoint is unavailable. */
     }
     setUser(null);
     sessionStorage.removeItem(USER_KEY);
   };
 
   const value = useMemo(
-    () => ({ user, loading, login, logout, setUser }),
-    [user, loading],
+    () => ({ user, loading, authReady, login, logout, setUser }),
+    [user, loading, authReady],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

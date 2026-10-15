@@ -30,7 +30,7 @@ export const endpoint = {
   leaves: "/leaves",
   holidays: "/holidays",
   notifications: "/notifications",
-  dashboard: "/dashboard",
+  dashboard: "/dashboard/summary",
   reports: "/reports",
 };
 export default api;

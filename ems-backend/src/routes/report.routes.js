@@ -3,7 +3,7 @@ import { authenticate } from "../middleware/auth.middleware.js";
 import { allowRoles } from "../middleware/role.middleware.js";
 import { attendanceReport, leaveReport, employeeReport } from "../controllers/report.controller.js";
 const router = Router();
-router.use(authenticate, allowRoles("admin", "hr"));
+router.use(authenticate, allowRoles("admin"));
 router.get("/attendance", attendanceReport);
 router.get("/leaves", leaveReport);
 router.get("/employees", employeeReport);

@@ -4,6 +4,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import AppLayout from "./layouts/AppLayout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Employees from "./pages/Employees";
 import Departments from "./pages/Departments";
 import ModulePage from "./pages/ModulePage";
@@ -12,10 +13,7 @@ import Leaves from "./pages/Leaves";
 
 function HomeRoute() {
   const { user } = useAuth();
-  // Employees should land on their self-service area, not the people-operations overview.
-  if (user?.role === "employee") {
-    return <Navigate to="/attendance" replace />;
-  }
+  if (user?.role === "employee") return <EmployeeDashboard />;
   return <Dashboard />;
 }
 
