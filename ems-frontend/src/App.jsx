@@ -30,10 +30,7 @@ function NotFound() {
       <p className="mt-2 text-sm text-slate-500">
         The page you are looking for does not exist.
       </p>
-      <a
-        href="/"
-        className="mt-5 inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white"
-      >
+      <a href="/" className="mt-5 inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white">
         Go to dashboard
       </a>
     </div>
@@ -52,16 +49,13 @@ export default function App() {
               <Route element={<ProtectedRoute allowedRoles={["admin", "hr"]} />}>
                 <Route path="employees" element={<Employees />} />
                 <Route path="departments" element={<Departments />} />
-                <Route path="attendance" element={<Attendance />} />
-                <Route path="leaves" element={<Leaves />} />
                 <Route path="reports" element={<ModulePage module="reports" />} />
               </Route>
-              <Route element={<ProtectedRoute allowedRoles={["admin", "hr"]} />}>
-                <Route path="holidays" element={<ModulePage module="holidays" />} />
-              </Route>
-              <Route element={<ProtectedRoute allowedRoles={["employee"]} />}>
+              <Route element={<ProtectedRoute allowedRoles={["admin", "hr", "employee"]} />}>
                 <Route path="attendance" element={<Attendance />} />
                 <Route path="leaves" element={<Leaves />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={["admin", "hr"]} />}>
                 <Route path="holidays" element={<ModulePage module="holidays" />} />
               </Route>
               <Route path="*" element={<NotFound />} />
