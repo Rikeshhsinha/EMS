@@ -11,11 +11,25 @@ export const applyLeave = asyncHandler(async (req, res) => {
   const employee = await Employee.findOne({ user: req.user._id });
   if (!employee) throw new HttpError(404, "Employee profile not found");
   const { leaveType, startDate, endDate, reason } = req.body;
+  const allowedLeaveTypes = [
+    "casual",
+    "sick",
+    "earned",
+    "unpaid",
+    "maternity",
+    "paternity",
+    "other",
+  ];
   if (!leaveType || !startDate || !endDate || !reason)
     throw new HttpError(
       400,
       "leaveType, startDate, endDate and reason are required",
     );
+  if (!allowedLeaveTypes.includes(leaveType))
+    throw new HttpError(400, "Invalid leave type");
+  const normalizedReason = String(reason).trim();
+  if (!normalizedReason || normalizedReason.length > 1000)
+    throw new HttpError(400, "Reason must be between 1 and 1000 characters");
   const start = new Date(startDate),
     end = new Date(endDate);
   if (Number.isNaN(+start) || Number.isNaN(+end) || end < start)
@@ -38,7 +52,7 @@ export const applyLeave = asyncHandler(async (req, res) => {
     leaveType,
     startDate: start,
     endDate: end,
-    reason,
+    reason: normalizedReason,
   });
   const reviewers = await User.find({
     role: { $in: ["admin", "hr"] },
