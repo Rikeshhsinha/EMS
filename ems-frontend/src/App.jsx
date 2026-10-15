@@ -4,6 +4,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import AppLayout from "./layouts/AppLayout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import HRDashboard from "./pages/HRDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Employees from "./pages/Employees";
 import Departments from "./pages/Departments";
@@ -13,8 +14,13 @@ import Leaves from "./pages/Leaves";
 
 function HomeRoute() {
   const { user } = useAuth();
-  if (user?.role === "employee") return <EmployeeDashboard />;
-  return <Dashboard />;
+  const role = String(user?.role || "").toLowerCase();
+
+  if (role === "admin") return <Dashboard />;
+  if (role === "hr") return <HRDashboard />;
+  if (role === "employee") return <EmployeeDashboard />;
+
+  return <Navigate to="/login" replace />;
 }
 
 function NotFound() {
@@ -53,7 +59,7 @@ export default function App() {
                 element={<ModulePage module="holidays" />}
               />
               <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-                <Route path="reports" element={<ModulePage module="reports" />} />
+                <Route path="reports" element={<ModulePage module="reports"} />}
               </Route>
               <Route path="*" element={<NotFound />} />
             </Route>
