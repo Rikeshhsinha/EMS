@@ -33,8 +33,10 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route index element={<Dashboard />} />
-              <Route path="employees" element={<Employees />} />
-              <Route path="departments" element={<Departments />} />
+              <Route element={<ProtectedRoute allowedRoles={["admin", "hr"]} />}>
+                <Route path="employees" element={<Employees />} />
+                <Route path="departments" element={<Departments />} />
+              </Route>
               <Route
                 path="attendance"
                 element={<ModulePage module="attendance" />}
@@ -44,7 +46,9 @@ export default function App() {
                 path="holidays"
                 element={<ModulePage module="holidays" />}
               />
-              <Route path="reports" element={<ModulePage module="reports" />} />
+              <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+                <Route path="reports" element={<ModulePage module="reports" />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Route>
           </Route>
