@@ -22,7 +22,7 @@ const attendanceSchema = new mongoose.Schema(
       ],
       default: "present",
     },
-    workLocation: { type: String, default: "office" },
+    workLocation: { type: String, enum: ["office", "remote"], default: "office" },
     notes: { type: String, default: "" },
     correctedBy: {
       type: mongoose.Schema.Types.ObjectId,

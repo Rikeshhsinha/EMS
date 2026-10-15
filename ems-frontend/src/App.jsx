@@ -7,6 +7,8 @@ import Dashboard from "./pages/Dashboard";
 import Employees from "./pages/Employees";
 import Departments from "./pages/Departments";
 import ModulePage from "./pages/ModulePage";
+import Attendance from "./pages/Attendance";
+import Leaves from "./pages/Leaves";
 
 function NotFound() {
   return (
@@ -37,11 +39,8 @@ export default function App() {
                 <Route path="employees" element={<Employees />} />
                 <Route path="departments" element={<Departments />} />
               </Route>
-              <Route
-                path="attendance"
-                element={<ModulePage module="attendance" />}
-              />
-              <Route path="leaves" element={<ModulePage module="leaves" />} />
+              <Route path="attendance" element={<Attendance />} />
+              <Route path="leaves" element={<Leaves />} />
               <Route
                 path="holidays"
                 element={<ModulePage module="holidays" />}

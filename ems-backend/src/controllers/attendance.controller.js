@@ -17,15 +17,17 @@ async function ownEmployee(req) {
 }
 export const checkIn = asyncHandler(async (req, res) => {
   const employee = await ownEmployee(req);
+  const workLocation = req.body.workLocation || "office";
+  if (!["office", "remote"].includes(workLocation))
+    throw new HttpError(400, "workLocation must be office or remote");
   const date = dateKey();
   let record = await Attendance.findOne({ employee: employee._id, date });
   if (record?.checkIn)
     throw new HttpError(409, "You have already checked in today");
   if (!record) record = new Attendance({ employee: employee._id, date });
   record.checkIn = new Date();
-  record.workLocation = req.body.workLocation || "office";
-  record.status =
-    req.body.workLocation === "remote" ? "work_from_home" : "present";
+  record.workLocation = workLocation;
+  record.status = workLocation === "remote" ? "work_from_home" : "present";
   await record.save();
   res
     .status(201)
