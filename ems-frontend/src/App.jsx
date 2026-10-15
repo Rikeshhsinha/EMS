@@ -4,6 +4,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import AppLayout from "./layouts/AppLayout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import HRDashboard from "./pages/HRDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Employees from "./pages/Employees";
 import Departments from "./pages/Departments";
@@ -13,8 +14,13 @@ import Leaves from "./pages/Leaves";
 
 function HomeRoute() {
   const { user } = useAuth();
-  if (user?.role === "employee") return <EmployeeDashboard />;
-  return <Dashboard />;
+  const role = String(user?.role || "").toLowerCase();
+
+  if (role === "admin") return <Dashboard />;
+  if (role === "hr") return <HRDashboard />;
+  if (role === "employee") return <EmployeeDashboard />;
+
+  return <Navigate to="/login" replace />;
 }
 
 function NotFound() {
@@ -24,15 +30,13 @@ function NotFound() {
       <p className="mt-2 text-sm text-slate-500">
         The page you are looking for does not exist.
       </p>
-      <a
-        href="/"
-        className="mt-5 inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white"
-      >
+      <a href="/" className="mt-5 inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white">
         Go to dashboard
       </a>
     </div>
   );
 }
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -45,15 +49,14 @@ export default function App() {
               <Route element={<ProtectedRoute allowedRoles={["admin", "hr"]} />}>
                 <Route path="employees" element={<Employees />} />
                 <Route path="departments" element={<Departments />} />
-              </Route>
-              <Route path="attendance" element={<Attendance />} />
-              <Route path="leaves" element={<Leaves />} />
-              <Route
-                path="holidays"
-                element={<ModulePage module="holidays" />}
-              />
-              <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
                 <Route path="reports" element={<ModulePage module="reports" />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={["admin", "hr", "employee"]} />}>
+                <Route path="attendance" element={<Attendance />} />
+                <Route path="leaves" element={<Leaves />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={["admin", "hr"]} />}>
+                <Route path="holidays" element={<ModulePage module="holidays" />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Route>
