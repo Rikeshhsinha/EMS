@@ -39,6 +39,7 @@ function NotFound() {
     </div>
   );
 }
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -51,15 +52,17 @@ export default function App() {
               <Route element={<ProtectedRoute allowedRoles={["admin", "hr"]} />}>
                 <Route path="employees" element={<Employees />} />
                 <Route path="departments" element={<Departments />} />
-              </Route>
-              <Route path="attendance" element={<Attendance />} />
-              <Route path="leaves" element={<Leaves />} />
-              <Route
-                path="holidays"
-                element={<ModulePage module="holidays" />}
-              />
-              <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+                <Route path="attendance" element={<Attendance />} />
+                <Route path="leaves" element={<Leaves />} />
                 <Route path="reports" element={<ModulePage module="reports" />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={["admin", "hr"]} />}>
+                <Route path="holidays" element={<ModulePage module="holidays" />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={["employee"]} />}>
+                <Route path="attendance" element={<Attendance />} />
+                <Route path="leaves" element={<Leaves />} />
+                <Route path="holidays" element={<ModulePage module="holidays" />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Route>
