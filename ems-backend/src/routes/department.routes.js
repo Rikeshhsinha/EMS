@@ -7,10 +7,13 @@ import {
   updateDepartment,
   deleteDepartment,
 } from "../controllers/department.controller.js";
+
 const router = Router();
+
 router.use(authenticate);
 router.get("/", listDepartments);
-router.post("/", allowRoles("admin", "hr"), createDepartment);
-router.patch("/:id", allowRoles("admin", "hr"), updateDepartment);
+router.post("/", allowRoles("admin"), createDepartment);
+router.patch("/:id", allowRoles("admin"), updateDepartment);
 router.delete("/:id", allowRoles("admin"), deleteDepartment);
+
 export default router;
