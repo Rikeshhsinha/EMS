@@ -19,14 +19,19 @@ export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const name = user?.name || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || 'Administrator';
-  const role = user?.role || 'admin';
+  const name = user?.name || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || 'User';
+  const role = user?.role || 'employee';
+  const visibleNavItems = navItems.filter((item) => {
+    if (role === "employee") return ["/", "/attendance", "/leaves", "/holidays"].includes(item.path);
+    if (role === "hr") return item.path !== "/reports";
+    return true;
+  });
 
   const signOut = async () => { await logout(); navigate('/login', { replace: true }); };
   const sidebar = <aside className={`flex h-full flex-col bg-[#101a31] text-slate-300 ${collapsed ? 'w-[86px]' : 'w-[260px]'} transition-[width] duration-200`}>
     <div className={`flex h-[82px] items-center border-b border-white/10 px-5 ${collapsed ? 'justify-center' : ''}`}><Logo compact={collapsed}/></div>
     <div className="px-4 pt-6"><p className={`mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 ${collapsed ? 'text-center' : ''}`}>{collapsed ? 'MENU' : 'Workspace'}</p>
-      <nav className="space-y-1">{navItems.map(({ label, path, icon: Icon }) => <NavLink key={path} to={path} end={path === '/'} onClick={() => setSidebarOpen(false)} title={collapsed ? label : undefined} className={({ isActive }) => `group flex items-center gap-3 rounded-xl px-3 py-3 text-[13px] font-medium transition ${isActive ? 'bg-blue-600 text-white shadow-lg shadow-blue-950/20' : 'text-slate-400 hover:bg-white/[0.06] hover:text-white'} ${collapsed ? 'justify-center' : ''}`}><Icon size={18}/>{!collapsed && <span>{label}</span>}</NavLink>)}</nav>
+      <nav className="space-y-1">{visibleNavItems.map(({ label, path, icon: Icon }) => <NavLink key={path} to={path} end={path === '/'} onClick={() => setSidebarOpen(false)} title={collapsed ? label : undefined} className={({ isActive }) => `group flex items-center gap-3 rounded-xl px-3 py-3 text-[13px] font-medium transition ${isActive ? 'bg-blue-600 text-white shadow-lg shadow-blue-950/20' : 'text-slate-400 hover:bg-white/[0.06] hover:text-white'} ${collapsed ? 'justify-center' : ''}`}><Icon size={18}/>{!collapsed && <span>{label}</span>}</NavLink>)}</nav>
     </div>
     <div className="mt-auto p-4"><div className={`rounded-xl border border-white/10 bg-white/[0.04] p-3 ${collapsed ? 'flex justify-center' : ''}`}><div className="flex items-center gap-3"><div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-blue-500/20 text-xs font-bold text-blue-200">{name.slice(0, 2).toUpperCase()}</div>{!collapsed && <div className="min-w-0 flex-1"><p className="truncate text-xs font-semibold text-white">{name}</p><p className="mt-0.5 text-[10px] capitalize text-slate-400">{role}</p></div>}</div>{!collapsed && <button onClick={signOut} className="mt-3 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs text-slate-400 hover:bg-white/5 hover:text-white"><LogOut size={14}/> Sign out</button>}</div></div>
     {!collapsed && <button onClick={() => setCollapsed(true)} className="hidden h-11 items-center justify-center gap-2 border-t border-white/10 text-xs text-slate-500 hover:text-white lg:flex"><ChevronLeft size={15}/> Collapse sidebar</button>}
