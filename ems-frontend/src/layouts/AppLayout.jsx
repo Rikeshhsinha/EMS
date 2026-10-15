@@ -38,12 +38,13 @@ export default function AppLayout() {
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
     user?.email ||
     "User";
-  const role = user?.role || "employee";
+  const role = String(user?.role || "").toLowerCase();
   const visibleNavItems = navItems.filter((item) => {
     if (role === "employee")
       return ["/", "/attendance", "/leaves", "/holidays"].includes(item.path);
-    if (role === "hr") return item.path !== "/reports";
-    return true;
+    if (role === "hr") return true;
+    if (role === "admin") return true;
+    return false;
   });
 
   const signOut = async () => {
@@ -93,12 +94,8 @@ export default function AppLayout() {
             </div>
             {!collapsed && (
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-semibold text-white">
-                  {name}
-                </p>
-                <p className="mt-0.5 text-[10px] capitalize text-slate-400">
-                  {role}
-                </p>
+                <p className="truncate text-xs font-semibold text-white">{name}</p>
+                <p className="mt-0.5 text-[10px] capitalize text-slate-400">{role || "unknown role"}</p>
               </div>
             )}
           </div>
@@ -126,30 +123,19 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-[#f6f8fc] lg:flex">
       <div className="fixed inset-x-0 top-0 z-30 flex h-[68px] items-center justify-between border-b border-slate-200 bg-white px-4 lg:hidden">
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="rounded-lg p-2 text-slate-600"
-        >
+        <button onClick={() => setSidebarOpen(true)} className="rounded-lg p-2 text-slate-600">
           <Menu />
         </button>
         <Logo />
         <div className="w-9" />
       </div>
-      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:block">
-        {sidebar}
-      </div>
+      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:block">{sidebar}</div>
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-slate-950/40"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="absolute inset-0 bg-slate-950/40" onClick={() => setSidebarOpen(false)} />
           <div className="relative h-full w-[280px]">
             {sidebar}
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="absolute right-3 top-6 rounded-lg p-2 text-slate-300"
-            >
+            <button onClick={() => setSidebarOpen(false)} className="absolute right-3 top-6 rounded-lg p-2 text-slate-300">
               <X size={18} />
             </button>
           </div>
@@ -168,27 +154,20 @@ export default function AppLayout() {
         )}
         <header className="hidden h-[82px] items-center justify-between border-b border-slate-200/80 bg-white px-8 lg:flex">
           <div>
-            <p className="text-xs text-slate-400">
-              Workspace /{" "}
-              <span className="text-slate-600">People operations</span>
-            </p>
-            <p className="mt-1 text-sm font-semibold text-slate-800">
-              A clearer view of your team.
-            </p>
+            <p className="text-xs text-slate-400">Workspace / <span className="text-slate-600">People operations</span></p>
+            <p className="mt-1 text-sm font-semibold text-slate-800">A clearer view of your team.</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
               <p className="text-sm font-semibold text-slate-800">{name}</p>
-              <p className="mt-0.5 text-xs capitalize text-slate-400">{role}</p>
+              <p className="mt-0.5 text-xs capitalize text-slate-400">{role || "unknown role"}</p>
             </div>
             <div className="grid h-10 w-10 place-items-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
               {name.slice(0, 2).toUpperCase()}
             </div>
           </div>
         </header>
-        <div className="mx-auto max-w-[1500px] p-4 sm:p-6 lg:p-8">
-          <Outlet />
-        </div>
+        <div className="mx-auto max-w-[1500px] p-4 sm:p-6 lg:p-8"><Outlet /></div>
       </main>
     </div>
   );
