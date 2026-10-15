@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AppLayout from "./layouts/AppLayout";
 import Login from "./pages/Login";
@@ -9,6 +9,15 @@ import Departments from "./pages/Departments";
 import ModulePage from "./pages/ModulePage";
 import Attendance from "./pages/Attendance";
 import Leaves from "./pages/Leaves";
+
+function HomeRoute() {
+  const { user } = useAuth();
+  // Employees should land on their self-service area, not the people-operations overview.
+  if (user?.role === "employee") {
+    return <Navigate to="/attendance" replace />;
+  }
+  return <Dashboard />;
+}
 
 function NotFound() {
   return (
@@ -34,7 +43,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
-              <Route index element={<Dashboard />} />
+              <Route index element={<HomeRoute />} />
               <Route element={<ProtectedRoute allowedRoles={["admin", "hr"]} />}>
                 <Route path="employees" element={<Employees />} />
                 <Route path="departments" element={<Departments />} />
