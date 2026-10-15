@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import api, { endpoint } from "../services/api";
 
 const AuthContext = createContext(null);
@@ -15,6 +15,24 @@ function readSavedUser() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readSavedUser);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api.get("/auth/me")
+      .then(({ data }) => {
+        if (!active) return;
+        const currentUser = data.user || data.data?.user || null;
+        setUser(currentUser);
+        if (currentUser) sessionStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+        else sessionStorage.removeItem(USER_KEY);
+      })
+      .catch(() => {
+        if (!active) return;
+        setUser(null);
+        sessionStorage.removeItem(USER_KEY);
+      });
+    return () => { active = false; };
+  }, []);
 
   const login = async (credentials) => {
     setLoading(true);
