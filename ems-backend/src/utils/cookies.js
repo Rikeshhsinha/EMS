@@ -1,13 +1,19 @@
 export function cookieOptions() {
-  const secure = process.env.COOKIE_SECURE === "true" || process.env.NODE_ENV === "production";
+  const production = process.env.NODE_ENV === "production";
+  const secure = process.env.COOKIE_SECURE
+    ? process.env.COOKIE_SECURE === "true"
+    : production;
+  const sameSite = process.env.COOKIE_SAME_SITE || (production ? "none" : "lax");
+
   return {
     httpOnly: true,
     secure,
-    sameSite: process.env.COOKIE_SAME_SITE || "lax",
+    sameSite,
     path: "/",
-    maxAge: 24 * 60 * 60 * 1000
+    maxAge: 24 * 60 * 60 * 1000,
   };
 }
+
 export function clearCookieOptions() {
   const { maxAge, ...options } = cookieOptions();
   return options;
